@@ -6,6 +6,7 @@ from scipy.sparse.linalg import lsmr, lsqr
 from scipy import sparse
 from ektelo import util
 from ektelo.operators import InferenceOperator
+from ektelo.timer import simple_time_tracker, log_to_file
 
 
 def get_A(M, noise_scales):
@@ -163,7 +164,8 @@ class LeastSquares(ScalableInferenceOperator):
         B = LinearOperator(shape=(m, n - 1), matvec=matvec,
                            rmatvec=rmatvec, dtype=np.float64)
         return B, z
-
+        
+    @simple_time_tracker(log_to_file)
     def infer(self, Ms, ys, scale_factors=None):
         ''' Either:
             1) Ms is a single M and ys is a single y 

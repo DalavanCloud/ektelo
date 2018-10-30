@@ -15,6 +15,7 @@ import numpy as np
 from scipy import sparse
 from functools import reduce
 from ektelo.support import get_matrix
+from ektelo.timer import simple_time_tracker, log_to_file
 
 
 class Identity(Base):
@@ -70,13 +71,16 @@ class H2(Base):
     http://dl.acm.org/citation.cfm?id=1920970
     """
 
-    def __init__(self):
+    def __init__(self, domain_shape):
         self.init_params = {}
+        self.domain_shape = domain_shape
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
+        x = x.flatten()
         prng = np.random.RandomState(seed)
-        M = selection.H2(x.shape).select()
+        M = selection.H2(self.domain_shape).select()
         y  = measurement.Laplace(M, eps).measure(x, prng)
         x_hat = inference.LeastSquares().infer(M, y)
 
@@ -97,6 +101,7 @@ class HB(Base):
 
         assert len(domain_shape) in [1, 2], "HB only works for 1D and 2D domains"
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         x = x.flatten()
         prng = np.random.RandomState(seed)
@@ -368,6 +373,7 @@ class QuadTree(Base):
         self.init_params = {}
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         x = x.flatten()
         prng = np.random.RandomState(seed)
@@ -391,6 +397,7 @@ class UGrid(Base):
         self.data_scale = data_scale
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         assert len(x.shape) == 2, "Uniform Grid only works for 2D domain"
 

@@ -12,7 +12,9 @@ from ektelo import util
 from ektelo import support
 from ektelo.operators import SelectionOperator
 from functools import reduce
+from ektelo.timer import simple_time_tracker, log_to_file
 
+@simple_time_tracker(log_to_file)
 def flatten_measurements(m, dsize, sparse_flag = 1):
     ''' Given a list of coordinates (each row corresponds to one query)
         it returns a set of measurements in the desired format.
@@ -182,7 +184,6 @@ def find_best_branching(N):
 
     return min_b
 
-
 def Hb2D(n, m, b_h, b_v, sparse = 1):
     ''' Implementation of Hb for 2D histograms
             (n,m): the shape of x
@@ -255,11 +256,11 @@ def GenerateCells(n,m,num1,num2,grid):
             if rb[1] >= m:
                 rb[1] = int(m-1)
 
-            cells = cells + [[lb,rb]]
+            cells.append([lb,rb])
 
     return cells
 
-
+@simple_time_tracker(log_to_file)
 def cells_to_query(cells,domain):
     '''
     helper function
@@ -332,6 +333,7 @@ class H2(SelectionOperator):
         self.domain_shape = domain_shape
         self.cache = np.ones((1, 1))
 
+    @simple_time_tracker(log_to_file)
     def select(self):
         if self.domain_shape[0] == self.cache.shape[1]:
             h_queries = self.cache
@@ -358,6 +360,7 @@ class HB(SelectionOperator):
         self.domain_shape = domain_shape
         self.sparse_flag = sparse_flag
 
+    @simple_time_tracker(log_to_file)
     def select(self):
         if len(self.domain_shape) == 1:
 
@@ -494,6 +497,7 @@ class QuadTree(SelectionOperator):
         self.domain_shape = domain_shape
         self.sparse_flag = sparse_flag
 
+    @simple_time_tracker(log_to_file)
     def select(self):
         strategy = quadtree(self.domain_shape[0], self.domain_shape[1], self.sparse_flag)
         return strategy
@@ -516,6 +520,7 @@ class UniformGrid(SelectionOperator):
         # is slightly different. 
         self.ag_flag = ag_flag 
 
+    @simple_time_tracker(log_to_file)
     def select(self):
         n, m = self.domain_shape
         N = self.data_sum

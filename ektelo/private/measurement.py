@@ -3,8 +3,9 @@ import math
 import numpy as np
 from ektelo import util
 from ektelo.operators import MeasurementOperator
+from ektelo.timer import simple_time_tracker, log_to_file
 
-
+@simple_time_tracker(log_to_file)
 class Laplace(MeasurementOperator):
 
     def __init__(self, A, eps):
