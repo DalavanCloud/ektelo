@@ -8,7 +8,6 @@ from ektelo import util
 from ektelo.operators import InferenceOperator
 from ektelo.timer import simple_time_tracker, log_to_file
 
-
 def get_A(M, noise_scales):
     """
         Calculate matrix 'A' of measurements, scaled appropriately for inference
@@ -88,7 +87,7 @@ def eval_x(hatx, q):
     """evaluation of a query in the form of t"""
     return float(q.dot(hatx))
 
-
+@simple_time_tracker(log_to_file)
 def multWeightsUpdate(hatx, Q, Q_est, updateRounds = 1):
     """ Multiplicative weights update, supporting multiple measurements and repeated update rounds
     hatx: starting estimate of database

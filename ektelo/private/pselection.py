@@ -5,6 +5,7 @@ from functools import reduce
 from scipy import sparse
 from ektelo.operators import SelectionOperator
 from ektelo.algorithm.privBayes import privBayesSelect
+from ektelo.timer import simple_time_tracker, log_to_file
 
 def noisyMax(scores, sensitivity, epsilon, prng, measuredQueries):
     """ Alternative of exponential mechanism.
@@ -63,7 +64,8 @@ class WorstApprox(SelectionOperator):
         self.x_est = x_est
         self.eps = eps
         self.mechanism = mechanism
-
+        
+    @simple_time_tracker(log_to_file)
     def select(self, x, prng):
         measuredQueries = self.W_partial.nonzero()[0].tolist()
         # order of answers matters, must match workload, which it will

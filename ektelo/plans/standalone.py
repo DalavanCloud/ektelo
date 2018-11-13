@@ -25,6 +25,7 @@ class Identity(Base):
         super().__init__()
         self.workload_based = workload_based
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         x = x.flatten()   
         prng = np.random.RandomState(seed)
@@ -54,6 +55,7 @@ class Privelet(Base):
         self.init_params = {}
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         x = x.flatten()
         prng = np.random.RandomState(seed)
@@ -133,6 +135,7 @@ class GreedyH(Base):
         self.init_params = {}
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         prng = np.random.RandomState(seed)
         W = get_matrix(W)
@@ -148,6 +151,7 @@ class Uniform(Base):
         self.init_params = {}
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         x = x.flatten()
         prng = np.random.RandomState(seed)
@@ -172,6 +176,7 @@ class PrivBayesLS(Base):
         self.domain = domain
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, relation, eps, seed):
         prng = np.random.RandomState(seed)
         M = pselection.PrivBayesSelect(self.theta, 
@@ -201,6 +206,7 @@ class Mwem(Base):
         self.update_rounds = update_rounds
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         x = x.flatten()
         prng = np.random.RandomState(seed)
@@ -210,7 +216,6 @@ class Mwem(Base):
         x_hat = np.array([self.data_scale / float(domain_size)] * domain_size)
 
         W = get_matrix(W)
-
         W_partial = sparse.csr_matrix(W.shape)
         mult_weight = inference.MultiplicativeWeights(updateRounds = self.update_rounds)
 
@@ -259,6 +264,7 @@ class Ahp(Base):
         self.workload_based = workload_based
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         x = x.flatten()
         prng = np.random.RandomState(seed)
@@ -309,6 +315,7 @@ class Dawa(Base):
 
         assert len(domain_shape) in [1, 2], "DAWA only works for 1D and 2D domains"
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         x = x.flatten()
         prng = np.random.RandomState(seed)
@@ -332,7 +339,9 @@ class Dawa(Base):
             x = domain_reducer.transform(x)
 
             W = get_matrix(W)
-
+            print(hilbert_mapping.shape)
+            print(W)
+            print(support.expansion_matrix(hilbert_mapping).shape)
             W = W * support.expansion_matrix(hilbert_mapping)
 
             dawa = pmapper.Dawa(eps, self.ratio, self.approx)
@@ -426,6 +435,7 @@ class AGrid(Base):
         self.data_scale = data_scale
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         assert len(x.shape) == 2, "Adaptive Grid only works for 2D domain"
 
@@ -490,6 +500,7 @@ class DawaStriped(Base):
         self.approx = approx
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         x = x.flatten()            
         prng = np.random.RandomState(seed)
@@ -562,6 +573,7 @@ class DawaStriped_fast(Base):
         else:
             return self.std_project_workload(w, hd_vector.flatten(), groupID)
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         x = x.flatten()            
         prng = np.random.RandomState(seed)
@@ -625,6 +637,7 @@ class StripedHB(Base):
         self.stripe_dim = stripe_dim
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         x = x.flatten()            
         prng = np.random.RandomState(seed)
@@ -669,6 +682,7 @@ class MwemVariantB(Base):
         self.update_rounds = update_rounds
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         x = x.flatten()
         prng = np.random.RandomState(seed)
@@ -722,6 +736,7 @@ class MwemVariantC(Base):
         self.total_noise_scale = total_noise_scale
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         prng = np.random.RandomState(seed)
         domain_size = np.prod(self.domain_shape)
@@ -775,6 +790,7 @@ class MwemVariantD(Base):
         self.total_noise_scale = total_noise_scale  
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         prng = np.random.RandomState(seed)
         domain_size = np.prod(self.domain_shape)
@@ -828,6 +844,7 @@ class HDMarginals(Base):
         self.init_params = {}
         super().__init__()
 
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         domain_shape = x.shape
         x = x.flatten()
@@ -855,7 +872,7 @@ class HDMarginalsSmart(Base):
         self.approx = approx
         super(HDMarginalsSmart, self).__init__()
 
-
+    @simple_time_tracker(log_to_file)
     def Run(self, W, x, eps, seed):
         domain_dimension = len(self.domain_shape)
         eps_share = util.old_div(float(eps), domain_dimension)
