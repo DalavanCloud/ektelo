@@ -39,6 +39,10 @@ class Identity(Base):
             W = W * support.expansion_matrix(mapping)
 
         M = selection.Identity(x.shape).select()
+
+        if not isinstance(M, np.ndarray):
+            M = M.toarray()
+
         y = measurement.Laplace(M, eps).measure(x, prng)
         x_hat = inference.LeastSquares().infer(M, y)
 
@@ -60,6 +64,10 @@ class Privelet(Base):
         x = x.flatten()
         prng = np.random.RandomState(seed)
         M = selection.Wavelet(x.shape).select()
+
+        if not isinstance(M, np.ndarray):
+            M = M.toarray()
+
         y  = measurement.Laplace(M, eps).measure(x, prng)
         x_hat = inference.LeastSquares().infer(M, y)
 
@@ -83,6 +91,10 @@ class H2(Base):
         x = x.flatten()
         prng = np.random.RandomState(seed)
         M = selection.H2(self.domain_shape).select()
+
+        if not isinstance(M, np.ndarray):
+            M = M.toarray()
+
         y  = measurement.Laplace(M, eps).measure(x, prng)
         x_hat = inference.LeastSquares().infer(M, y)
 
@@ -118,6 +130,10 @@ class HB(Base):
             self.domain_shape = x.shape
 
         M = selection.HB(self.domain_shape).select()
+
+        if not isinstance(M, np.ndarray):
+            M = M.toarray()
+
         y  = measurement.Laplace(M, eps).measure(x, prng)
         x_hat = inference.LeastSquares().infer(M, y)
 
@@ -140,6 +156,9 @@ class GreedyH(Base):
         prng = np.random.RandomState(seed)
         W = get_matrix(W)
         M = selection.GreedyH(x.shape, W).select()
+        if not isinstance(M, np.ndarray):
+            M = M.toarray()
+
         y  = measurement.Laplace(M, eps).measure(x, prng)
         x_hat = inference.LeastSquares().infer(M, y)
 
@@ -156,6 +175,9 @@ class Uniform(Base):
         x = x.flatten()
         prng = np.random.RandomState(seed)
         M = selection.Total(x.shape).select()
+        if not isinstance(M, np.ndarray):
+            M = M.toarray()
+
         y  = measurement.Laplace(M, eps).measure(x, prng)
         x_hat = inference.LeastSquares().infer(M, y)
 
@@ -182,6 +204,9 @@ class PrivBayesLS(Base):
         M = pselection.PrivBayesSelect(self.theta, 
                                        self.domain, 
                                        eps).select(relation, prng)
+        if not isinstance(M, np.ndarray):
+            M = M.toarray()
+
         x = transformation.Vectorize('', reduced_domain=self.domain).transform(relation)
         y = measurement.Laplace(M, eps).measure(x, prng)
         x_hat = inference.LeastSquares().infer(M, y)
@@ -232,6 +257,10 @@ class Mwem(Base):
                                                   'EXPONENTIAL')
             W_next = worst_approx.select(x, prng)
             M = support.extract_M(W_next)
+
+            if not isinstance(M, np.ndarray):
+                M = M.toarray()
+
             W_partial += W_next
 
             # LM 
@@ -281,6 +310,8 @@ class Ahp(Base):
         # Orange AHPparition(PA) operator in paper can be expressed
         # as the following sequence of simpler opeartors
         M = selection.Identity(x.shape).select()
+        if not isinstance(M, np.ndarray):
+            M = M.toarray()
         y = measurement.Laplace(M, self.ratio * eps).measure(x, prng)
         xest = inference.AHPThresholding(self.eta, self.ratio).infer(M, y, eps)
         mapping = mapper.AHPCluster(xest, (1-self.ratio) * eps).mapping() 
@@ -356,6 +387,8 @@ class Dawa(Base):
         W_bar = W * support.expansion_matrix(mapping)
 
         M_bar = selection.GreedyH(x_bar.shape, W_bar).select()
+        if not isinstance(M_bar, np.ndarray):
+            M_bar = M_bar.toarray()
         y = measurement.Laplace(M_bar, eps*(1-self.ratio)).measure(x_bar, prng)
         x_bar_hat = inference.LeastSquares().infer(M_bar, y)
 
@@ -386,6 +419,9 @@ class QuadTree(Base):
         shape_2d = (x.shape[0]//2,2)
         
         M = selection.QuadTree(shape_2d).select()
+        if not isinstance(M, np.ndarray):
+            M = M.toarray()
+
         y  = measurement.Laplace(M, eps).measure(x, prng)
         x_hat = inference.LeastSquares().infer(M, y)
 
@@ -412,6 +448,8 @@ class UGrid(Base):
         prng = np.random.RandomState(seed)
 
         M = selection.UniformGrid(shape_2d, self.data_scale, eps).select()
+        if not isinstance(M, np.ndarray):
+            M = M.toarray()
         y  = measurement.Laplace(M, eps).measure(x, prng)
         x_hat = inference.LeastSquares().infer(M, y)
 
@@ -447,6 +485,9 @@ class AGrid(Base):
 								  eps, 
 								  ag_flag=True, 
 								  c=self.c).select()
+        if not isinstance(M, np.ndarray):
+            M = M.toarray()
+
         y  = measurement.Laplace(M, self.alpha*eps).measure(x, prng)
         x_hat = inference.LeastSquares().infer(M, y)
 
@@ -475,6 +516,9 @@ class AGrid(Base):
 										 x_hat_i, 
 										 (1-self.alpha)*eps, 
 										 c2=self.c2).select()
+            if not isinstance(M, np.ndarray):
+                M_i = M_i.toarray()
+
             y_i = measurement.Laplace(M_i, (1-self.alpha)*eps).measure(x_i, prng)
 
             M_i_o = M_i * P_i
