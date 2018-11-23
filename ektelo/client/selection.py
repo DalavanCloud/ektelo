@@ -255,7 +255,7 @@ def GenerateCells(n,m,num1,num2,grid):
             if rb[1] >= m:
                 rb[1] = int(m-1)
 
-            cells = cells + [[lb,rb]]
+            cells.append([lb,rb])
 
     return cells
 
