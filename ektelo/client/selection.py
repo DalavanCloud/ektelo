@@ -376,6 +376,27 @@ class HB(SelectionOperator):
                              self.sparse_flag)
         return h_queries
 
+class hd_IHB(SelectionOperator):
+
+    def __init__(self, domain_shape, hb_dim=-1):
+        self.init_params = util.init_params_from_locals(locals())
+        self.domain_shape = domain_shape
+        self.hb_dim = hb_dim # default to last dimension
+
+
+    def select(self):
+        queries = [sparse.identity(n) for n in self.domain_shape]
+        N = self.domain_shape[self.hb_dim]
+        branching = find_best_branching(N)
+        queries[self.hb_dim] = buildHierarchical_sparse(N, branching).tocsr()[1:]
+
+        # Note(ryan): this assumes the data is flattened in C-style "row-major" order
+        # this is the default for numpy flatten and ravel, but it would be better to do the
+        # kronecker product over the nd range queries just to be safe
+        # reversing the order of queries makes it work with Fortran style "column-major" ordering
+        strategy = reduce(sparse.kron, queries, sparse.identity(1))
+        
+        return strategy
 
 class GreedyH(SelectionOperator):
 
