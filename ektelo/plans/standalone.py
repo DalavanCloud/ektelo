@@ -660,7 +660,7 @@ class StripedHB_fast(Base):
     def Run(self, W, x, eps, seed):
         x = x.flatten()            
         prng = np.random.RandomState(seed)
-        M = selection.hd_IHB(x.shape, self.stripe_dim).select()
+        M = selection.hd_IHB(self.domain, self.stripe_dim).select()
         y  = measurement.Laplace(M, eps).measure(x, prng)
         x_hat = inference.LeastSquares().infer(M, y)
 

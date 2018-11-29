@@ -715,7 +715,7 @@ class StripedHB_fast(Base):
     def Run(self, W, x, eps, seed):
         x = x.flatten()            
         prng = np.random.RandomState(seed)
-        M = selection.hd_IHB(x.shape, self.stripe_dim).select()
+        M = selection.hd_IHB(self.domain, self.stripe_dim).select()
 
         if not isinstance(M, np.ndarray):
                 M = M.toarray()

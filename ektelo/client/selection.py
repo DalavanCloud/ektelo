@@ -385,16 +385,19 @@ class hd_IHB(SelectionOperator):
 
 
     def select(self):
-        queries = [sparse.identity(n) for n in self.domain_shape]
+        
         N = self.domain_shape[self.hb_dim]
         branching = find_best_branching(N)
-        queries[self.hb_dim] = buildHierarchical_sparse(N, branching).tocsr()[1:]
-
+        H = buildHierarchical_sparse(N, branching).tocsr()[1:]
         # Note(ryan): this assumes the data is flattened in C-style "row-major" order
         # this is the default for numpy flatten and ravel, but it would be better to do the
         # kronecker product over the nd range queries just to be safe
         # reversing the order of queries makes it work with Fortran style "column-major" ordering
-        strategy = reduce(sparse.kron, queries, sparse.identity(1))
+        domains = list(self.domain_shape)
+        del domains[self.hb_dim]
+        
+        I = sparse.identity(int(np.prod(domains)))
+        strategy = reduce(sparse.kron, [I, H], sparse.identity(1))
         
         return strategy
 
