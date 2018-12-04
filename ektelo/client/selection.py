@@ -324,8 +324,9 @@ class H2(SelectionOperator):
     def __init__(self, domain_shape, branching=2, matrix_form='sparse'):
         super(H2, self).__init__()
 
-        assert isinstance(domain_shape, tuple) and len(
-            domain_shape) == 1, 'Hierarchical selection only supports 1D and 2D domain shapes'
+        assert (isinstance(domain_shape, tuple) and len(domain_shape) == 1
+                or len(domain_shape) == 2
+                ), 'Hierarchical selection only supports 1D and 2D domain shapes'
         assert branching > 1
         self.branching = branching
         self.matrix_form = matrix_form
