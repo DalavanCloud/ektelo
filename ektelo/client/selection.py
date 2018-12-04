@@ -337,7 +337,7 @@ class H2(SelectionOperator):
             return self.cache
 
         if len(self.domain_shape) == 1:
-            elif self.matrix_form == 'dense':
+            if self.matrix_form == 'dense':
                 h_queries = buildHierarchical_ios(self.domain_shape[0], self.branching)
             else:
                 h_queries = buildHierarchical_sparse(self.domain_shape[0], self.branching)
