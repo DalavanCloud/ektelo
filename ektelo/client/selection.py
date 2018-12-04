@@ -334,11 +334,19 @@ class H2(SelectionOperator):
 
     def select(self):
         if self.domain_shape[0] == self.cache.shape[1]:
-            h_queries = self.cache
-        elif self.matrix_form == 'dense':
-            h_queries = buildHierarchical_ios(self.domain_shape[0], self.branching)
-        else:
-            h_queries = buildHierarchical_sparse(self.domain_shape[0], self.branching)
+            return self.cache
+
+        if len(self.domain_shape) == 1:
+            elif self.matrix_form == 'dense':
+                h_queries = buildHierarchical_ios(self.domain_shape[0], self.branching)
+            else:
+                h_queries = buildHierarchical_sparse(self.domain_shape[0], self.branching)
+
+        elif len(self.domain_shape) == 2:
+            h_queries = Hb2D(self.domain_shape[0], 
+                             self.domain_shape[1],
+                             self.branching, 
+                             self.branching)
 
         return h_queries
 
@@ -398,7 +406,6 @@ class hd_IHB(SelectionOperator):
         
         I = sparse.identity(int(np.prod(domains)))
         strategy = reduce(sparse.kron, [I, H], sparse.identity(1))
-        
         return strategy
 
 class GreedyH(SelectionOperator):
