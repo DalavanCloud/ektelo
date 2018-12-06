@@ -706,7 +706,6 @@ class MwemVariantB(Base):
             W_next = worst_approx.select(x, prng)
             measuredQueries.append(W_next.mwem_index)
             M = selection.AddEquiWidthIntervals(W_next, i).select()
-            print(type(M))
             # LM 
             laplace = measurement.Laplace(M, eps_round * (1-self.ratio))
             y = laplace.measure(x, prng)
