@@ -52,42 +52,39 @@ class WorstApprox(SelectionOperator):
         (Commonly used in MWEM)
     '''
 
-    def __init__(self, W, W_partial, x_est, eps, mechanism="NOISYMAX"):
+    def __init__(self, W, measuredQueries, x_est, eps, mechanism="NOISYMAX"):
         super(WorstApprox, self).__init__()
 
         assert ((mechanism == "NOISYMAX") or (mechanism == "EXPONENTIAL")
                 ), "mechanism must be set to NOISYMAX or EXPONENTIAL"
 
         self.W = W
-        self.W_partial = W_partial
+        self.measuredQueries = measuredQueries
         self.x_est = x_est
         self.eps = eps
         self.mechanism = mechanism
 
     def select(self, x, prng):
-        measuredQueries = self.W_partial.nonzero()[0].tolist()
-        # order of answers matters, must match workload, which it will
-
         true_answers = self.W.dot(x)
         est_answers = self.W.dot(self.x_est)
 
-        scores = np.array([abs(true - est) for (true, est) in zip(true_answers, est_answers)])
+        scores = np.abs(true_answers - est_answers)
 
         # keep track of all measured queries, won't be selected again.
 
         if (self.mechanism == "NOISYMAX"):
-            index = noisyMax(scores, 1.0, self.eps, prng, measuredQueries)
+            index = noisyMax(scores, 1.0, self.eps, prng, self.measuredQueries)
         elif (self.mechanism == "EXPONENTIAL"):
-            index = exponentialMechanism(scores, 1.0, self.eps, prng, measuredQueries)
+            index = exponentialMechanism(scores, 1.0, self.eps, prng, self.measuredQueries)
 
         if not sparse.isspmatrix_csr(self.W):
             W = self.W.tocsr()
         else:
             W = self.W
 
-        W_row = sparse.csr_matrix((W[index].data, (np.array([index]*len(W[index].data)), W[index].indices)), W.shape)
-
-        return W_row
+        ans = W[index]
+        ans.mwem_index = index 
+        return ans
 
 class PrivBayesSelect(SelectionOperator):
 

@@ -85,6 +85,8 @@ class H2(Base):
         return x_hat
 
 
+
+
 class HB(Base):
     """
     W. Qardaji, W. Yang,and N. Li. Understanding hierarchical methods for differentially private histograms. PVLDB, 2013.
@@ -203,12 +205,12 @@ class Mwem(Base):
         prng = np.random.RandomState(seed)
         domain_size = np.prod(self.domain_shape)
 
-        # Start with a unifrom estimation of x
+        # Start with a uniform estimation of x
         x_hat = np.array([self.data_scale / float(domain_size)] * domain_size)
 
         W = get_matrix(W)
 
-        W_partial = sparse.csr_matrix(W.shape)
+        measuredQueries = []
         mult_weight = inference.MultiplicativeWeights(updateRounds = self.update_rounds)
 
         M_history = np.empty((0, domain_size))
@@ -217,14 +219,13 @@ class Mwem(Base):
             eps_round = eps / float(self.rounds)
             # SW
 
-            worst_approx = pselection.WorstApprox(sparse.csr_matrix(W),
-                                                  W_partial,
+            worst_approx = pselection.WorstApprox(W,
+                                                  measuredQueries,
                                                   x_hat,
                                                   eps_round * self.ratio,
                                                   'EXPONENTIAL')
-            W_next = worst_approx.select(x, prng)
-            M = support.extract_M(W_next)
-            W_partial += W_next
+            M = worst_approx.select(x, prng)
+            measuredQueries.append(M.mwem_index)
 
             # LM 
             laplace = measurement.Laplace(M, eps_round * (1-self.ratio))
@@ -689,8 +690,7 @@ class MwemVariantB(Base):
         
         W = get_matrix(W)
 
-
-        W_partial = sparse.csr_matrix(W.shape)
+        measuredQueries = []
         mult_weight = inference.MultiplicativeWeights(updateRounds = self.update_rounds)
 
         M_history = np.empty((0, domain_size))
@@ -698,14 +698,15 @@ class MwemVariantB(Base):
         for i in range(1, self.rounds+1):
             eps_round = eps / float(self.rounds)
             # SW + SH2
-            worst_approx = pselection.WorstApprox(sparse.csr_matrix(W),
-                                                  W_partial, 
+            worst_approx = pselection.WorstApprox(W,
+                                                  measuredQueries, 
                                                   x_hat, 
                                                   eps_round * self.ratio)
 
             W_next = worst_approx.select(x, prng)
+            measuredQueries.append(W_next.mwem_index)
             M = selection.AddEquiWidthIntervals(W_next, i).select()
-
+            print(type(M))
             # LM 
             laplace = measurement.Laplace(M, eps_round * (1-self.ratio))
             y = laplace.measure(x, prng)
@@ -734,6 +735,7 @@ class MwemVariantC(Base):
         super().__init__()
 
     def Run(self, W, x, eps, seed):
+        x = x.flatten()
         prng = np.random.RandomState(seed)
         domain_size = np.prod(self.domain_shape)
         # Start with a unifrom estimation of x
@@ -741,21 +743,21 @@ class MwemVariantC(Base):
             
         W = get_matrix(W)
 
-        W_partial = sparse.csr_matrix(W.shape)
         nnls = inference.NonNegativeLeastSquares()
 
+        measuredQueries = []
         M_history = np.empty((0, domain_size))
         y_history = []
+
         for i in range(1, self.rounds+1):
             eps_round = eps / float(self.rounds)
 
-            worst_approx = pselection.WorstApprox(sparse.csr_matrix(W), 
-                                                  W_partial, 
+            worst_approx = pselection.WorstApprox(W,
+                                                  measuredQueries,
                                                   x_hat, 
                                                   eps_round * self.ratio)
-            W_next = worst_approx.select(x, prng)
-            M = support.extract_M(W_next)
-            W_partial += W_next
+            M = worst_approx.select(x, prng)
+            measuredQueries.append(M.mwem_index)
 
             laplace = measurement.Laplace(M, eps_round * (1-self.ratio))
             y = laplace.measure(x, prng)
@@ -787,14 +789,17 @@ class MwemVariantD(Base):
         super().__init__()
 
     def Run(self, W, x, eps, seed):
+        x = x.flatten()
         prng = np.random.RandomState(seed)
+
         domain_size = np.prod(self.domain_shape)
         # Start with a unifrom estimation of x
         x_hat = np.array([self.data_scale / float(domain_size)] * domain_size)
         
         W = get_matrix(W)
 
-        W_partial = sparse.csr_matrix(W.shape)
+        measuredQueries = []
+
         nnls = inference.NonNegativeLeastSquares()
 
         M_history = np.empty((0, domain_size))
@@ -803,15 +808,14 @@ class MwemVariantD(Base):
             eps_round = eps / float(self.rounds)
 
             # SW + SH2
-            worst_approx = pselection.WorstApprox(sparse.csr_matrix(W),
-                                                  W_partial, 
+            worst_approx = pselection.WorstApprox(W,
+                                                  measuredQueries,
                                                   x_hat, 
                                                   eps_round * self.ratio)
 
             W_next = worst_approx.select(x, prng)
+            measuredQueries.append(W_next.mwem_index)
             M = selection.AddEquiWidthIntervals(W_next, i).select()
-
-            W_partial += W_next
 
             laplace = measurement.Laplace(M, eps_round * (1-self.ratio))
             y = laplace.measure(x, prng)
@@ -922,3 +926,5 @@ class HDMarginalsSmart(Base):
         x_hat = inference.LeastSquares(method='lsmr').infer(Ms, ys, scale_factors)
 
         return x_hat  
+
+
