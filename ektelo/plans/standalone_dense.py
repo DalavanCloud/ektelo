@@ -231,6 +231,8 @@ class Mwem(Base):
         x_hat = np.array([self.data_scale / float(domain_size)] * domain_size)
 
         W = get_matrix(W)
+        if not isinstance(W, np.ndarray):
+            W = W.toarray()
 
         measuredQueries = []
         mult_weight = inference.MultiplicativeWeights(updateRounds = self.update_rounds)
@@ -255,7 +257,7 @@ class Mwem(Base):
             laplace = measurement.Laplace(M, eps_round * (1-self.ratio))
             y = laplace.measure(x, prng)
 
-            M_history = sparse.vstack([M_history, M])
+            M_history = np.vstack([M_history, M])
             y_history.extend(y)
 
             # MW
@@ -740,7 +742,9 @@ class MwemVariantB(Base):
         x_hat = np.array([self.data_scale / float(domain_size)] * domain_size)
         
         W = get_matrix(W)
-
+        if not isinstance(W, np.ndarray):
+            W = W.toarray()
+            
         measuredQueries = []
         mult_weight = inference.MultiplicativeWeights(updateRounds = self.update_rounds)
 
@@ -763,7 +767,7 @@ class MwemVariantB(Base):
             laplace = measurement.Laplace(M, eps_round * (1-self.ratio))
             y = laplace.measure(x, prng)
 
-            M_history = sparse.vstack([M_history, M])
+            M_history = np.vstack([M_history, M])
             y_history.extend(y)
 
             # MW
@@ -793,6 +797,8 @@ class MwemVariantC(Base):
         x_hat = np.array([self.data_scale / float(domain_size)] * domain_size)
             
         W = get_matrix(W)
+        if not isinstance(W, np.ndarray):
+            W = W.toarray()
 
         nnls = inference.NonNegativeLeastSquares()
 
@@ -816,7 +822,7 @@ class MwemVariantC(Base):
             y = laplace.measure(x, prng)
 
             # default use history
-            M_history = sparse.vstack([M_history, M])
+            M_history = np.vstack([M_history, M])
             y_history.extend(y)
             
 
@@ -850,7 +856,8 @@ class MwemVariantD(Base):
         x_hat = np.array([self.data_scale / float(domain_size)] * domain_size)
         
         W = get_matrix(W)
-
+        if not isinstance(W, np.ndarray):
+            W = W.toarray()
         measuredQueries = []
 
         nnls = inference.NonNegativeLeastSquares()
@@ -877,7 +884,7 @@ class MwemVariantD(Base):
             y = laplace.measure(x, prng)
 
             # default use history
-            M_history = sparse.vstack([M_history, M])
+            M_history = np.vstack([M_history, M])
             y_history.extend(y)
             
             if self.total_noise_scale != 0:

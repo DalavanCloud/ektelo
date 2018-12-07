@@ -77,12 +77,14 @@ class WorstApprox(SelectionOperator):
         elif (self.mechanism == "EXPONENTIAL"):
             index = exponentialMechanism(scores, 1.0, self.eps, prng, self.measuredQueries)
 
-        if not sparse.isspmatrix_csr(self.W):
+        if sparse.isspmatrix(self.W) and not sparse.isspmatrix_csr(self.W):
             W = self.W.tocsr()
+            ans = W[index]
         else:
             W = self.W
+            ans = sparse.csr_matrix(W[index])
 
-        ans = W[index]
+        
         ans.mwem_index = index 
         return ans
 
