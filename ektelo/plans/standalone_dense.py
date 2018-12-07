@@ -744,7 +744,7 @@ class MwemVariantB(Base):
         W = get_matrix(W)
         if not isinstance(W, np.ndarray):
             W = W.toarray()
-            
+
         measuredQueries = []
         mult_weight = inference.MultiplicativeWeights(updateRounds = self.update_rounds)
 
@@ -800,7 +800,7 @@ class MwemVariantC(Base):
         if not isinstance(W, np.ndarray):
             W = W.toarray()
 
-        nnls = inference.NonNegativeLeastSquares()
+        nnls = inference.NonNegativeLeastSquares(method='new')
 
         measuredQueries = []
         M_history = np.empty((0, domain_size))
@@ -860,8 +860,8 @@ class MwemVariantD(Base):
             W = W.toarray()
         measuredQueries = []
 
-        nnls = inference.NonNegativeLeastSquares()
-
+        nnls = inference.NonNegativeLeastSquares(method='new')
+        
         M_history = np.empty((0, domain_size))
         y_history = []
         for i in range(1, self.rounds+1):
