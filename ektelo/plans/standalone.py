@@ -742,7 +742,7 @@ class MwemVariantC(Base):
             
         W = get_matrix(W)
 
-        nnls = inference.NonNegativeLeastSquares()
+        nnls = inference.NonNegativeLeastSquares(method='new')
 
         measuredQueries = []
         M_history = np.empty((0, domain_size))
@@ -799,7 +799,7 @@ class MwemVariantD(Base):
 
         measuredQueries = []
 
-        nnls = inference.NonNegativeLeastSquares()
+        nnls = inference.NonNegativeLeastSquares(method='new')
 
         M_history = np.empty((0, domain_size))
         y_history = []
